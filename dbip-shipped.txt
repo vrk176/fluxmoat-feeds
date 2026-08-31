@@ -1,11 +1,4 @@
-# The DB-IP IP-to-Country Lite month that is currently baked into the FluxMoat
-# app bundle (FluxMoat/App/Resources/GeoIP/dbip-country-lite.mmdb in the main
-# repo). Format: YYYY-MM, one line, matching DB-IP's monthly release naming.
-#
-# Nothing updates this automatically -- when you swap the .mmdb in the app,
-# come back here and bump the month by hand, otherwise the monthly reminder
-# workflow keeps opening issues about a version you already shipped.
-#
-# The month below was read out of the bundled file's own metadata:
-# build_epoch 1782869996 = 2026-07-01 01:39:56 UTC.
-2026-07
+# Which DB-IP monthly release the app currently bundles.
+# Update this by hand when you swap the MMDB in the main repo
+# (see the reminder issue this repo opens when a newer one is out).
+2026-08
