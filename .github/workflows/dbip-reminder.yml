@@ -1,0 +1,116 @@
+name: DB-IP monthly reminder
+
+# The IP-to-Country Lite database is baked into the app bundle, so refreshing it
+# means shipping a build -- no automation can do that for us. This just watches
+# DB-IP's monthly release and nags with an issue when we fall behind.
+#
+# The 5th, not the 1st: DB-IP usually posts a couple of days into the month, and
+# a reminder that fires before the file exists is just noise.
+on:
+  schedule:
+    - cron: "0 9 5 * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/check_dbip.sh"
+      - "dbip-shipped.txt"
+      - ".github/workflows/dbip-reminder.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: dbip-reminder
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v5
+
+      - name: Probe DB-IP for a newer release
+        id: probe
+        # HEAD requests only -- we never download the database in CI.
+        # Exits non-zero if no month answered 200, so a moved URL fails loudly.
+        run: bash scripts/check_dbip.sh
+
+      - name: Open a reminder issue
+        if: steps.probe.outputs.needs_update == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.probe.outputs.latest }}
+          SHIPPED: ${{ steps.probe.outputs.shipped }}
+        run: |
+          set -euo pipefail
+          TITLE="DB-IP ${LATEST} 已发布，App 内还是 ${SHIPPED}"
+          export TITLE
+
+          # This runs every month until someone actually ships the new file, so
+          # check for our own still-open issue first instead of stacking up one
+          # duplicate per month. Search first, then a plain listing as a safety
+          # net -- code search tokenizes CJK titles unpredictably and a missed
+          # match here means a duplicate issue every single month.
+          EXISTING=$(gh issue list --state open --limit 100 \
+            --search "DB-IP ${LATEST} in:title" \
+            --json number,title \
+            --jq '[.[] | select(.title == env.TITLE)] | .[0].number // empty')
+
+          if [ -z "${EXISTING}" ]; then
+            EXISTING=$(gh issue list --state open --limit 100 \
+              --json number,title \
+              --jq '[.[] | select(.title == env.TITLE)] | .[0].number // empty')
+          fi
+
+          if [ -n "${EXISTING}" ]; then
+            echo "Issue #${EXISTING} already covers ${LATEST}; not opening another."
+            echo "- 已有 open issue #${EXISTING}，跳过" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          BODY=$(cat <<EOF
+          DB-IP 已经放出 IP-to-Country Lite \`${LATEST}\`，App 里打包的还是 \`${SHIPPED}\`。
+
+          下载（gzip，解压后是 .mmdb）：
+
+          \`\`\`
+          curl -O https://download.db-ip.com/free/dbip-country-lite-${LATEST}.mmdb.gz
+          gunzip dbip-country-lite-${LATEST}.mmdb.gz
+          \`\`\`
+
+          换版本的步骤（顺序别乱，第 3 步漏了这个提醒会一直响）：
+
+          1. 用解压出来的文件覆盖主仓的
+             \`FluxMoat/App/Resources/GeoIP/dbip-country-lite.mmdb\`，
+             跑一遍 GeoIP 相关测试确认新库能正常读。
+          2. 跟着下一个 App 版本一起发出去 —— 库是打进 bundle 的，不发版用户拿不到。
+          3. 回本仓把 \`dbip-shipped.txt\` 改成 \`${LATEST}\`，然后关掉这条 issue。
+
+          数据是 CC BY 4.0，署名文案跟着库一起走，别漏。
+
+          ---
+          这条是 \`.github/workflows/dbip-reminder.yml\` 每月 5 号自动开的。
+          EOF
+          )
+
+          URL=$(gh issue create --title "${TITLE}" --body "${BODY}")
+          echo "Opened ${URL}"
+          {
+            echo "### DB-IP 有新版了"
+            echo ""
+            echo "- 线上最新：\`${LATEST}\`"
+            echo "- App 打包：\`${SHIPPED}\`"
+            echo "- 提醒 issue：${URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Nothing to do
+        if: steps.probe.outputs.needs_update != 'true'
+        env:
+          LATEST: ${{ steps.probe.outputs.latest }}
+          SHIPPED: ${{ steps.probe.outputs.shipped }}
+        run: |
+          echo "App ships ${SHIPPED}, newest upstream release is ${LATEST} -- already current."
+          echo "DB-IP 已是最新（\`${SHIPPED}\`），没开 issue。" >> "$GITHUB_STEP_SUMMARY"
