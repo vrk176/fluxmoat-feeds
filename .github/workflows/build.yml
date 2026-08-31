@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run offline tests
         # These need no key and no network. If the filters are broken we want
@@ -53,7 +53,7 @@ jobs:
       - name: Check out the published site
         # The live gh-pages tree, so the build can compare against what is
         # already out there and refuse to replace it with something worse.
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: gh-pages
           path: published
@@ -76,18 +76,22 @@ jobs:
         run: |
           set -eu
           CHANGED=$(python3 -c "import json;print(json.load(open('out/summary.json'))['changed'])")
-          cp site/index.html out/index.html
-          cp site/.nojekyll out/.nojekyll 2>/dev/null || touch out/.nojekyll
-          rm -rf published/threatfox
           mkdir -p published/threatfox
-          cp out/threatfox/manifest.json out/threatfox/manifest.sha256 published/threatfox/
-          cp out/index.html out/.nojekyll published/
+          cp site/index.html published/index.html
+          touch published/.nojekyll
+          if [ "${CHANGED}" = "True" ]; then
+            cp out/threatfox/manifest.json out/threatfox/manifest.sha256 published/threatfox/
+          else
+            # Same indicators as last time -- only generated_at would differ.
+            # Not worth a 4 MB commit every six hours.
+            echo "Indicator set unchanged; keeping the published manifest byte-for-byte."
+          fi
           cd published
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
-            echo "Nothing to publish -- the site is already current (indicators changed: ${CHANGED})."
+            echo "Nothing to publish -- the site is already current."
             exit 0
           fi
           COUNT=$(python3 -c "import json;print(json.load(open('threatfox/manifest.json'))['counts']['total'])")
