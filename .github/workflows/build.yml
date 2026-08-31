@@ -1,0 +1,115 @@
+name: Build ThreatFox manifest
+
+# Every six hours, plus a manual button. ThreatFox itself updates
+# continuously; six hours keeps the feed fresh without hammering abuse.ch.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+      - "tests/**"
+      - "data/**"
+      - "site/**"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-manifest
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+
+      - name: Run offline tests
+        # These need no key and no network. If the filters are broken we want
+        # to know before we touch the published feed, not after.
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Check the Auth-Key secret is present
+        # Fail here, loudly and before any network call, so the log says what
+        # is missing instead of dying with an opaque 403 later.
+        env:
+          ABUSECH_AUTH_KEY: ${{ secrets.ABUSECH_AUTH_KEY }}
+        run: |
+          if [ -z "${ABUSECH_AUTH_KEY}" ]; then
+            echo "::error::Repository secret ABUSECH_AUTH_KEY is not set."
+            echo "Get a free Auth-Key at https://auth.abuse.ch/ and add it under"
+            echo "Settings -> Secrets and variables -> Actions -> New repository secret,"
+            echo "named exactly ABUSECH_AUTH_KEY. Nothing was published; the"
+            echo "manifest already on gh-pages is untouched."
+            exit 1
+          fi
+          echo "ABUSECH_AUTH_KEY is set (${#ABUSECH_AUTH_KEY} characters)."
+
+      - name: Check out the published site
+        # The live gh-pages tree, so the build can compare against what is
+        # already out there and refuse to replace it with something worse.
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: published
+
+      - name: Build the manifest
+        env:
+          ABUSECH_AUTH_KEY: ${{ secrets.ABUSECH_AUTH_KEY }}
+        run: |
+          mkdir -p out/threatfox
+          python3 scripts/build_manifest.py \
+            --out out/threatfox/manifest.json \
+            --previous published/threatfox/manifest.json \
+            --allowlist data/allowlist.txt \
+            --summary-file out/summary.json
+
+      - name: Publish to gh-pages
+        # Only ever runs when the build above succeeded. Any failure -- missing
+        # key, dead endpoint, collapsed indicator count -- skips this step and
+        # leaves the previously published manifest exactly where it is.
+        run: |
+          set -eu
+          CHANGED=$(python3 -c "import json;print(json.load(open('out/summary.json'))['changed'])")
+          cp site/index.html out/index.html
+          cp site/.nojekyll out/.nojekyll 2>/dev/null || touch out/.nojekyll
+          rm -rf published/threatfox
+          mkdir -p published/threatfox
+          cp out/threatfox/manifest.json out/threatfox/manifest.sha256 published/threatfox/
+          cp out/index.html out/.nojekyll published/
+          cd published
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to publish -- the site is already current (indicators changed: ${CHANGED})."
+            exit 0
+          fi
+          COUNT=$(python3 -c "import json;print(json.load(open('threatfox/manifest.json'))['counts']['total'])")
+          git commit -m "ThreatFox manifest: ${COUNT} indicators ($(date -u +%Y-%m-%dT%H:%MZ))"
+          git push origin gh-pages
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f out/summary.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          s = json.load(open("out/summary.json"))
+          st = s["stats"]
+          print("### ThreatFox manifest\n")
+          print(f"- indicators: **{st['total']}** ({st['domains']} domain, {st['ips']} ip)")
+          print(f"- from {st['input_records']} upstream records")
+          print(f"- previous published total: {s['previous_total']}")
+          print(f"- changed: {s['changed']}")
+          print(f"- size: {s['bytes']} bytes")
+          print(f"- sha256: `{s['sha256']}`")
+          PY
+          else
+            echo "No manifest was produced -- see the failing step above." >> "$GITHUB_STEP_SUMMARY"
+          fi

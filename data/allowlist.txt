@@ -1,0 +1,84 @@
+# Domains that must never end up in the manifest, matched EXACTLY.
+#
+# Not a suffix match on purpose: `evil.workers.dev` is a real C2 and stays
+# blocked; it is only the shared apex `workers.dev` -- which would take out
+# every Cloudflare Worker on the user's device -- that has to be dropped if
+# it ever shows up in an export.
+#
+# ThreatFox has never listed any of these as a `domain` IOC (checked against
+# the 2026-08 full export). This file is a seatbelt, not a fix.
+
+# shared app/hosting platforms whose subdomains ThreatFox does list
+workers.dev
+r2.dev
+duckdns.org
+no-ip.org
+ddns.net
+nip.io
+sslip.io
+vercel.app
+netlify.app
+web.app
+firebaseapp.com
+herokuapp.com
+pages.dev
+ngrok.io
+ngrok-free.app
+trycloudflare.com
+glitch.me
+repl.co
+onrender.com
+fly.dev
+azurewebsites.net
+cloudapp.azure.com
+amazonaws.com
+cloudfront.net
+blogspot.com
+wordpress.com
+weebly.com
+000webhostapp.com
+
+# large services that appear as url IOC hosts (we drop url IOCs anyway)
+google.com
+googleapis.com
+gstatic.com
+googleusercontent.com
+sites.google.com
+drive.google.com
+youtube.com
+microsoft.com
+live.com
+office.com
+sharepoint.com
+onedrive.com
+windows.net
+apple.com
+icloud.com
+github.com
+githubusercontent.com
+raw.githubusercontent.com
+gitlab.com
+bitbucket.org
+jsdelivr.net
+cdn.jsdelivr.net
+unpkg.com
+cloudflare.com
+cloudflare-dns.com
+akamai.net
+akamaihd.net
+fastly.net
+telegram.org
+telegram.me
+t.me
+discord.com
+discordapp.com
+steamcommunity.com
+steampowered.com
+dropbox.com
+mediafire.com
+archive.org
+pastebin.com
+facebook.com
+instagram.com
+twitter.com
+x.com

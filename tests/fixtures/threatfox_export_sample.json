@@ -1,0 +1,152 @@
+{
+  "900001": [
+    {
+      "ioc_value": "93.184.216.34:443",
+      "ioc_type": "ip:port",
+      "threat_type": "botnet_cc",
+      "malware": "win.remcos",
+      "first_seen_utc": "2026-08-20 08:15:10",
+      "last_seen_utc": null,
+      "confidence_level": 100
+    }
+  ],
+  "900002": [
+    {
+      "ioc_value": "BAD.Example.COM.",
+      "ioc_type": "domain",
+      "threat_type": "botnet_cc",
+      "malware": "win.qakbot",
+      "first_seen_utc": "2026-08-25 11:00:00",
+      "confidence_level": 75
+    },
+    {
+      "ioc_value": "*.wildcard.example",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-26 11:00:00",
+      "confidence_level": 100
+    }
+  ],
+  "900003": [
+    {
+      "ioc_value": "https://cdn.jsdelivr.net/npm/payload.js",
+      "ioc_type": "url",
+      "first_seen_utc": "2026-08-27 09:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "http://198.51.100.9/beacon",
+      "ioc_type": "url",
+      "first_seen_utc": "2026-08-27 09:05:00",
+      "confidence_level": 100
+    }
+  ],
+  "900004": [
+    {
+      "ioc_value": "d41d8cd98f00b204e9800998ecf8427e",
+      "ioc_type": "md5_hash",
+      "first_seen_utc": "2026-08-28 10:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "ioc_type": "sha256_hash",
+      "first_seen_utc": "2026-08-28 10:00:00",
+      "confidence_level": 100
+    }
+  ],
+  "900005": [
+    {
+      "ioc_value": "stale.example",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-01-15 12:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "203.0.113.77:8080",
+      "ioc_type": "ip:port",
+      "first_seen_utc": "2026-01-20 12:00:00",
+      "confidence_level": 100
+    }
+  ],
+  "900006": [
+    {
+      "ioc_value": "93.184.216.34:8443",
+      "ioc_type": "ip:port",
+      "first_seen_utc": "2026-08-29 06:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "bad.example.com",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 06:00:00",
+      "confidence_level": 100
+    }
+  ],
+  "900007": [
+    {
+      "ioc_value": "[2001:db8::1]:443",
+      "ioc_type": "ip:port",
+      "first_seen_utc": "2026-08-30 07:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "9.8.7.6:53",
+      "ioc_type": "ip:port",
+      "first_seen_utc": "2026-08-30 07:10:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "10.0.0.1:53",
+      "ioc_type": "ip:port",
+      "first_seen_utc": "2026-08-30 07:20:00",
+      "confidence_level": 100
+    }
+  ],
+  "900008": [
+    {
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 08:00:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "not a domain at all",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 08:05:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "localhost",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 08:10:00",
+      "confidence_level": 100
+    }
+  ],
+  "900009": [
+    {
+      "ioc_value": "lowtrust.example",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 09:00:00",
+      "confidence_level": 25
+    },
+    {
+      "ioc_value": "workers.dev",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 09:10:00",
+      "confidence_level": 100
+    },
+    {
+      "ioc_value": "evil-c2.workers.dev",
+      "ioc_type": "domain",
+      "first_seen_utc": "2026-08-30 09:20:00",
+      "confidence_level": 100
+    }
+  ],
+  "900010": [
+    {
+      "ioc_value": "nodate.example",
+      "ioc_type": "domain",
+      "first_seen_utc": null,
+      "confidence_level": 100
+    }
+  ]
+}

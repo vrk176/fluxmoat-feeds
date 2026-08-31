@@ -1,0 +1,7 @@
+# build output -- the manifest lives on the gh-pages branch, never on main
+out/
+published/
+*.zip
+__pycache__/
+*.pyc
+.DS_Store
