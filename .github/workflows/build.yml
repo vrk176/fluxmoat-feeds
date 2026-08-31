@@ -79,6 +79,9 @@ jobs:
           mkdir -p published/threatfox
           cp site/index.html published/index.html
           touch published/.nojekyll
+          # Pages drops the custom domain if a publish ever lands without this
+          # file, so it gets rewritten every run instead of trusting checkout.
+          echo "feeds.hominexis.com" > published/CNAME
           if [ "${CHANGED}" = "True" ]; then
             cp out/threatfox/manifest.json out/threatfox/manifest.sha256 published/threatfox/
           else
