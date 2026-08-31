@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FluxMoat feeds</title>
+<style>
+  :root { color-scheme: light dark; --fg: #16181d; --bg: #fbfbfd; --muted: #5c6270; --line: #dfe2e8; --accent: #1f6feb; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg: #e6e8ec; --bg: #14161a; --muted: #9aa1ad; --line: #2b2f37; --accent: #7aa7ff; }
+  }
+  body { margin: 0; padding: 3rem 1.25rem 5rem; background: var(--bg); color: var(--fg);
+         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 44rem; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin: 0 0 .25rem; letter-spacing: -.01em; }
+  h2 { font-size: 1rem; margin: 2.5rem 0 .5rem; text-transform: uppercase;
+       letter-spacing: .08em; color: var(--muted); }
+  p { margin: .5rem 0; }
+  a { color: var(--accent); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .875rem; }
+  pre { background: color-mix(in srgb, var(--fg) 6%, transparent); padding: .75rem 1rem;
+        border-radius: 8px; overflow-x: auto; }
+  .url { display: block; padding: .75rem 1rem; border: 1px solid var(--line);
+         border-radius: 8px; word-break: break-all; }
+  .note { color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>FluxMoat feeds</h1>
+  <p class="note">Threat-intelligence indicators republished as FluxMoat JSON manifest blocklists.</p>
+
+  <h2>ThreatFox mirror</h2>
+  <a class="url" href="threatfox/manifest.json">threatfox/manifest.json</a>
+  <p class="note">Checksum: <a href="threatfox/manifest.sha256">threatfox/manifest.sha256</a> &middot; rebuilt every 6 hours.</p>
+  <p>Domain and IP indicators from <a href="https://threatfox.abuse.ch/">ThreatFox</a>, seen in the
+     last six months, filtered down to what a packet tunnel can match on a live flow.
+     Add it in FluxMoat under Blocklists as a <em>JSON manifest</em> source.</p>
+
+  <h2>Verify</h2>
+  <pre>curl -O https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.json
+curl -O https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.sha256
+shasum -a 256 -c manifest.sha256</pre>
+
+  <h2>Attribution</h2>
+  <p>Data: <a href="https://threatfox.abuse.ch/">ThreatFox</a> by
+     <a href="https://abuse.ch/">abuse.ch</a>, released under
+     <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a>.</p>
+  <p><strong>This is an unofficial third-party mirror.</strong> It is not operated,
+     endorsed, or supported by abuse.ch. Report problems with the mirror to
+     <a href="https://github.com/vrk176/fluxmoat-feeds">the mirror repository</a>,
+     never to abuse.ch.</p>
+</main>
+</body>
+</html>
