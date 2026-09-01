@@ -11,8 +11,8 @@ issues; problems with the underlying indicators belong with ThreatFox.
 
 | | |
 |---|---|
-| Manifest | <https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.json> |
-| Checksum | <https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.sha256> |
+| Manifest | <https://feeds.hominexis.com/threatfox/manifest.json> |
+| Checksum | <https://feeds.hominexis.com/threatfox/manifest.sha256> |
 | Format | FluxMoat "JSON manifest" |
 | Rebuilt | every 6 hours (and on demand) |
 | Upstream | `https://threatfox.abuse.ch/export/json/full/` |
@@ -21,6 +21,11 @@ issues; problems with the underlying indicators belong with ThreatFox.
 In FluxMoat: **Blocklists → add source → format "JSON manifest (ThreatFox)"**,
 paste the manifest URL. No abuse.ch Auth-Key is needed on the device — the key
 is only used here, in CI, to fetch the upstream export.
+
+`feeds.hominexis.com` is the address the app ships with, and the one to use.
+It is a custom domain over the same GitHub Pages deployment, so the origin URL
+`https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.json` serves the
+identical file and works as a fallback if the domain is ever unreachable.
 
 ## What is in it, and what is not
 
@@ -109,8 +114,8 @@ list of additions and removals.
 ## Verifying a download
 
 ```sh
-curl -O https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.json
-curl -O https://vrk176.github.io/fluxmoat-feeds/threatfox/manifest.sha256
+curl -O https://feeds.hominexis.com/threatfox/manifest.json
+curl -O https://feeds.hominexis.com/threatfox/manifest.sha256
 shasum -a 256 -c manifest.sha256      # macOS/Linux
 ```
 
